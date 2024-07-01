@@ -1,1 +1,1 @@
-Before you provision Dify, please set and check the variables in var.tf file.
+Before you provision Dify, please check and set the variables in var.tf file.
