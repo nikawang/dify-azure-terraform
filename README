@@ -1,0 +1,1 @@
+Before you provision Dify, please set and check the variables in var.tf file.
