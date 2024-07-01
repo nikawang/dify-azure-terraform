@@ -34,7 +34,7 @@ This document provides detailed descriptions of the variables used in the Terraf
 - **Type**: `string`
 - **Default Value**: `japaneast`
 
-##### IP Prefix
+##### VNET Address IP Prefix
 
 - **Variable Name**: `ip-prefix`
 - **Type**: `string`
@@ -76,7 +76,7 @@ This document provides detailed descriptions of the variables used in the Terraf
 - **Type**: `string`
 - **Default Value**: `#QWEASDasdqwe`
 
-#### Environment Variables
+#### ACA Environment Variables
 
 ##### ACA Environment
 
@@ -108,7 +108,7 @@ This document provides detailed descriptions of the variables used in the Terraf
 - **Type**: `string`
 - **Default Value**: `dify.nikadwang.com`
 
-#### Images
+#### Container Images
 
 ##### Dify API Image
 
