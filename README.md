@@ -4,6 +4,7 @@ Deploy [langgenius/dify](https://github.com/langgenius/dify), an LLM based chat 
 ### Topology
 Front-end access:
 - nginx -> Azure Container Apps (Serverless)
+
 Back-end components:
 - web -> Azure Container Apps (Serverless)
 - api -> Azure Container Apps (Serverless)
