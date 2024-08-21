@@ -3,6 +3,10 @@
 #   location = var.region
 # }
 
+resource "random_id" "rg_name" {
+  byte_length = 2
+}
+
 resource "azurerm_private_dns_zone" "postgres" {
   name                = "private.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
@@ -17,7 +21,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
 
 
 resource "azurerm_postgresql_flexible_server" "postgres" {
-  name                          = var.psql-flexible
+  name                          = "${var.psql-flexible}${random_id.rg_name.hex}"
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
   version                       = "16"

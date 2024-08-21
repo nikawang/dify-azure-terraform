@@ -1,6 +1,6 @@
 
 resource "azurerm_storage_account" "acafileshare" {
-  name                     = var.storage-account
+  name                     = "${var.storage-account}${random_id.rg_name.hex}"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
