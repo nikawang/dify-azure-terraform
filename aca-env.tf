@@ -596,15 +596,16 @@ resource "azurerm_container_app" "api" {
         value = "1000"
       }
 
-      env {
-        name  = "SSRF_PROXY_HTTP_URL"
-        value = "http://ssrfproxy:3128"
-      }
+      # comment the variables for workaround issue #https://github.com/langgenius/dify/issues/6244
+      # env {
+      #   name  = "SSRF_PROXY_HTTP_URL"
+      #   value = "http://ssrfproxy:3128"
+      # }
 
-      env {
-        name  = "SSRF_PROXY_HTTPS_URL"
-        value = "http://ssrfproxy:3128"
-      }
+      # env {
+      #   name  = "SSRF_PROXY_HTTPS_URL"
+      #   value = "http://ssrfproxy:3128"
+      # }
 
       env {
         name  = "INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH"
@@ -642,7 +643,7 @@ resource "azurerm_container_app" "web" {
     min_replicas = 0
     container {
       name   = "langgenius"
-      image  = "langgenius/dify-web:0.6.11"
+      image  = var.dify-web-image
       cpu    = 1
       memory = "2Gi"
        env {
