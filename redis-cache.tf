@@ -6,7 +6,7 @@
 
 #create azure redis cache with vnet integration
 resource "azurerm_redis_cache" "redis" {
-  name                = var.redis
+  name                = "${var.redis}${random_id.rg_name.hex}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   capacity            = 0
