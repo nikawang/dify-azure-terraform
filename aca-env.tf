@@ -680,6 +680,6 @@ resource "azurerm_container_app" "web" {
     }
 }
 
-output "nginx-app-url" {
+output "dify-app-url" {
   value = azurerm_container_app.nginx.latest_revision_fqdn
 }
