@@ -55,6 +55,11 @@ variable "aca-loga" {
   default = "dify-loga"
 }
 
+variable "isProvidedCert" {
+  type = bool
+  default = false
+}
+
 variable "aca-cert-path" {
   type = string
   default = "./certs/difycert.pfx"

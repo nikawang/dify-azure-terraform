@@ -35,6 +35,7 @@ resource "azurerm_container_app_environment_storage" "nginxfileshare" {
 }
 
 resource "azurerm_container_app_environment_certificate" "difycerts" {
+  count                        = var.isProvidedCert ? 1 : 0
   name                         = "difycerts"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
   certificate_blob_base64 = filebase64(var.aca-cert-path)
@@ -80,10 +81,13 @@ resource "azurerm_container_app" "nginx" {
       latest_revision = true
     }
     transport = "auto"
-    
-    custom_domain {
-      name = var.aca-dify-customer-domain
-      certificate_id = azurerm_container_app_environment_certificate.difycerts.id
+
+    dynamic "custom_domain" {
+      for_each = var.isProvidedCert ? [1] : []
+      content {
+        name           = var.aca-dify-customer-domain
+        certificate_id = azurerm_container_app_environment_certificate.difycerts[0].id
+      }
     }
   }
 }
@@ -674,4 +678,8 @@ resource "azurerm_container_app" "web" {
       }
       transport = "tcp"
     }
+}
+
+output "nginx-app-url" {
+  value = azurerm_container_app.nginx.latest_revision_fqdn
 }

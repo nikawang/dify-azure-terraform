@@ -21,6 +21,13 @@ Before you provision Dify, please check and set the variables in var.tf file.
 
 This document provides detailed descriptions of the variables used in the Terraform configuration for setting up the Dify environment.
 
+### Kick Start
+```bash
+terraform init
+terraform plan
+terraform apply --auto-approve
+```
+
 #### Subscription ID
 
 - **Variable Name**: `subscription-id`
@@ -91,19 +98,26 @@ This document provides detailed descriptions of the variables used in the Terraf
 - **Type**: `string`
 - **Default Value**: `dify-loga`
 
-##### ACA Certificate Path
+##### IF BRING YOUR OWN CERTIFICATE
+
+- **Variable Name**: `isProvidedCert`
+- **Type**: `bool`
+- **Default Value**: `false`
+
+
+##### ACA Certificate Path (if isProvidedCert is true)
 
 - **Variable Name**: `aca-cert-path`
 - **Type**: `string`
 - **Default Value**: `./certs/difycert.pfx`
 
-##### ACA Certificate Password
+##### ACA Certificate Password (if isProvidedCert is true)
 
 - **Variable Name**: `aca-cert-password`
 - **Type**: `string`
 - **Default Value**: `password`
 
-##### ACA Dify Customer Domain
+##### ACA Dify Customer Domain (if isProvidedCert is false)
 
 - **Variable Name**: `aca-dify-customer-domain`
 - **Type**: `string`
