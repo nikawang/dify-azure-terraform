@@ -4,29 +4,53 @@ resource "azurerm_storage_share" "fileshare" {
   quota                = var.quota
 }
 
+locals {
+  # Normalize the local mount directory path to use forward slashes
+  local_mount_dir_normalized = replace(var.local_mount_dir, "\\", "/")
+}
+
 data "local_file" "files" {
-  for_each = fileset(var.local_mount_dir, "**/*")
-  filename = "${var.local_mount_dir}/${each.value}"
+  for_each = fileset(local.local_mount_dir_normalized, "**/*")
+  # Normalize the filename to use forward slashes
+  filename = replace("${local.local_mount_dir_normalized}/${each.value}", "\\", "/")
+}
+
+locals {
+  files = [
+    for f in data.local_file.files : {
+      filename           = f.filename
+      dirname_normalized = replace(dirname(f.filename), "\\", "/")
+    }
+  ]
 }
 
 locals {
   directories = compact(distinct(sort([
-    for f in data.local_file.files : 
-    replace(dirname(f.filename), var.local_mount_dir, ".") 
-    if dirname(f.filename) != var.local_mount_dir && dirname(f.filename) != "."
+    for f in local.files :
+    replace(
+      f.dirname_normalized,
+      local.local_mount_dir_normalized,
+      "."
+    )
+    if f.dirname_normalized != local.local_mount_dir_normalized && f.dirname_normalized != "."
   ])))
 }
 
 locals {
-  root_files = { for f in data.local_file.files : f.filename => f if dirname(f.filename) == var.local_mount_dir }
-  subdir_files = { for f in data.local_file.files : f.filename => f if dirname(f.filename) != var.local_mount_dir }
+  root_files = {
+    for f in local.files : f.filename => f
+    if f.dirname_normalized == local.local_mount_dir_normalized
+  }
+  subdir_files = {
+    for f in local.files : f.filename => f
+    if f.dirname_normalized != local.local_mount_dir_normalized
+  }
 }
 
 resource "azurerm_storage_share_directory" "directories" {
-  for_each              = toset(local.directories)
-  name                  = each.value
-  storage_account_name  = var.storage_account_name
-  share_name            = azurerm_storage_share.fileshare.name
+  for_each          = toset(local.directories)
+  name              = each.value
+  storage_share_id  = azurerm_storage_share.fileshare.id
 }
 
 resource "azurerm_storage_share_file" "root_files" {
@@ -44,10 +68,9 @@ resource "azurerm_storage_share_file" "subdir_files" {
   name             = basename(each.value.filename)
   storage_share_id = azurerm_storage_share.fileshare.id
   source           = each.value.filename
-  path             = trimprefix(dirname(each.value.filename), "${var.local_mount_dir}/")
+  path             = trimprefix(each.value.dirname_normalized, "${local.local_mount_dir_normalized}/")
   depends_on       = [azurerm_storage_share_directory.directories]
 }
-
 
 output "share_name" {
   value       = azurerm_storage_share.fileshare.name
