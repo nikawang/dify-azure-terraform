@@ -1,6 +1,6 @@
 variable "subscription-id" {
   type = string
-  default = "0000000000000"
+  default = "25cc9009-2580-4987-936c-95aaab093023"
 }
 
 #virtual network variables
@@ -57,7 +57,7 @@ variable "aca-loga" {
 
 variable "isProvidedCert" {
   type = bool
-  default = false
+  default = true
 }
 
 variable "aca-cert-path" {
@@ -73,6 +73,16 @@ variable "aca-cert-password" {
 variable "aca-dify-customer-domain" {
   type = string
   default = "dify.nikadwang.com"
+}
+
+variable "aca-app-min-count" {
+  type = number
+  default = 0
+}
+
+variable "is_aca_enabled" {
+  type = bool
+  default = false
 }
 
 variable "dify-api-image" {

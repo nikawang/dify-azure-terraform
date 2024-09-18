@@ -6,6 +6,7 @@
 
 #create azure redis cache with vnet integration
 resource "azurerm_redis_cache" "redis" {
+  count               = var.is_aca_enabled ? 1 : 0
   name                = "${var.redis}${random_id.rg_name.hex}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -27,6 +28,7 @@ resource "azurerm_redis_cache" "redis" {
 }
 
 resource "azurerm_private_endpoint" "pe-redis" {
+  count               = var.is_aca_enabled ? 1 : 0
   name                = "pe-redis"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -34,7 +36,8 @@ resource "azurerm_private_endpoint" "pe-redis" {
 
   private_service_connection {
     name                           = "psc-redis"
-    private_connection_resource_id = azurerm_redis_cache.redis.id
+    # private_connection_resource_id = azurerm_redis_cache.redis[0].id
+    private_connection_resource_id = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].id : ""
     subresource_names              = ["redisCache"]
     is_manual_connection           = false
   }
@@ -59,11 +62,13 @@ resource "azurerm_private_dns_zone_virtual_network_link" "redis-vnet" {
 }
 
 output "redis_cache_hostname" {
-  value = azurerm_redis_cache.redis.hostname
+  # value = azurerm_redis_cache.redis[0].hostname
+  value = var.is_aca_enabled ? azurerm_redis_cache.redis[0].hostname : ""
 }
 
 output "redis_cache_key" {
-  value = azurerm_redis_cache.redis.primary_access_key
+  # value = azurerm_redis_cache.redis[0].primary_access_key
+  value = var.is_aca_enabled ? azurerm_redis_cache.redis[0].primary_access_key : ""
   sensitive = true
 }
 

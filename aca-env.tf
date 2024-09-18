@@ -19,9 +19,15 @@ resource "azurerm_container_app_environment" "dify-aca-env" {
   }
 
   depends_on = [ 
-    azurerm_redis_cache.redis,
+    # azurerm_redis_cache.redis[0],
     azurerm_postgresql_flexible_server.postgres
    ]
+  
+  # dynamic "depends_on" {
+  #   for_each = var.is_aca_enabled ? [azurerm_redis_cache.redis[0]] : []
+  #   content {}
+  # }
+  
 }
 
 resource "azurerm_container_app_environment_storage" "nginxfileshare" {
@@ -54,7 +60,7 @@ resource "azurerm_container_app" "nginx" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 0
+    min_replicas = var.aca-app-min-count
     container {
       name   = "nginx"
       image  = "nginx:latest"
@@ -114,7 +120,7 @@ resource "azurerm_container_app" "ssrfproxy" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 0
+    min_replicas = var.aca-app-min-count
     container {
       name   = "ssrfproxy"
       image  = "ubuntu/squid:latest"
@@ -167,7 +173,7 @@ resource "azurerm_container_app" "sandbox" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 0
+    min_replicas = var.aca-app-min-count
     container {
       name   = "langgenius"
       image  = var.dify-sandbox-image
@@ -240,7 +246,7 @@ resource "azurerm_container_app" "worker" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 1
+    min_replicas = var.aca-app-min-count
     container {
       name   = "langgenius"
       image  = var.dify-api-image
@@ -281,7 +287,8 @@ resource "azurerm_container_app" "worker" {
       }
       env {
         name  = "REDIS_HOST"
-        value = azurerm_redis_cache.redis.hostname
+        # value = azurerm_redis_cache.redis[0].hostname
+        value = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].hostname : ""
       }
       env {
         name  = "REDIS_PORT"
@@ -289,7 +296,8 @@ resource "azurerm_container_app" "worker" {
       }
       env {
         name  = "REDIS_PASSWORD"
-        value = azurerm_redis_cache.redis.primary_access_key
+        # value = azurerm_redis_cache.redis[0].primary_access_key
+        value  = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].primary_access_key : ""
       }
 
       env {
@@ -304,7 +312,8 @@ resource "azurerm_container_app" "worker" {
 
       env {
         name  = "CELERY_BROKER_URL"
-        value = "redis://:${azurerm_redis_cache.redis.primary_access_key}@${azurerm_redis_cache.redis.hostname}:6379/1"
+        # value = "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1"
+        value = length(azurerm_redis_cache.redis) > 0 ? "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1" : ""
       }
 
       env {
@@ -376,7 +385,7 @@ resource "azurerm_container_app" "api" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 0
+    min_replicas = var.aca-app-min-count
     container {
       name   = "langgenius"
       image  = var.dify-api-image
@@ -481,7 +490,8 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "REDIS_HOST"
-        value = azurerm_redis_cache.redis.hostname
+        # value = azurerm_redis_cache.redis[0].hostname
+        value = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].hostname : ""
       }
       env {
         name  = "REDIS_PORT"
@@ -489,7 +499,8 @@ resource "azurerm_container_app" "api" {
       }
       env {
         name  = "REDIS_PASSWORD"
-        value = azurerm_redis_cache.redis.primary_access_key
+        # value = azurerm_redis_cache.redis[0].primary_access_key
+        value  = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].primary_access_key : ""
       }
 
       env {
@@ -504,7 +515,8 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "CELERY_BROKER_URL"
-        value = "redis://:${azurerm_redis_cache.redis.primary_access_key}@${azurerm_redis_cache.redis.hostname}:6379/1"
+        # value = "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1"
+        value = length(azurerm_redis_cache.redis) > 0 ? "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1" : ""
       }
 
       env {
@@ -644,7 +656,7 @@ resource "azurerm_container_app" "web" {
       concurrent_requests = "10"
     }
     max_replicas = 10
-    min_replicas = 0
+    min_replicas = var.aca-app-min-count
     container {
       name   = "langgenius"
       image  = var.dify-web-image
